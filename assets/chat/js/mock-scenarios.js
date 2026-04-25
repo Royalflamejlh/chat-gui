@@ -118,6 +118,16 @@ const MESSAGES = [
   'Copium',
   'Sadge',
   'PepeLaugh he lacks critical information',
+  // rooyal's tweaks test messages
+  'check this https://www.instagram.com/p/DXZTtdoEzRb/',
+  'lol this tweet https://x.com/TheOmniLiberal/status/2047732007078179187',
+  'reddit thread https://www.reddit.com/r/Destiny/comments/1sumzkz/theyre_going_into_hiding/',
+  'watch this https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  'short link https://youtu.be/dQw4w9WgXcQ',
+  'nice pic https://via.placeholder.com/300x200.png',
+  'look at this https://i.imgur.com/example.gif',
+  'imgur link https://imgur.com/gallery/helping-to-keep-roadway-safe-RjKsMSt',
+  'direct imgur https://i.imgur.com/bwAleaY.png',
 ];
 
 const EMOTES = [

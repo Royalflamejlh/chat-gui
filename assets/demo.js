@@ -23,6 +23,10 @@ const chat = new Chat({
 });
 
 if (mock) {
+  // Prevent API calls that fail without a real DGG session
+  chat.loadSettings = () => Promise.resolve();
+  chat.loadWhispers = () => Promise.resolve();
+
   chat.control.on('MOCK', (parts) => {
     chat.source.send('MSG', { data: `/mock ${(parts || []).join(' ')}` });
   });

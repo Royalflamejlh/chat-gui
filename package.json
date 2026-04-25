@@ -6,6 +6,7 @@
   "scripts": {
     "glue": "node scripts/glue.js",
     "start": "webpack serve --mode=development",
+    "build": "webpack --mode=production",
     "test": "jest",
     "prepare": "shx test -d .git && shx cp .githooks/* .git/hooks/ || true",
     "lint": "eslint --fix --max-warnings=0 . && prettier -cwu ."

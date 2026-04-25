@@ -1,0 +1,16 @@
+.tippy-box[data-theme~='dgg-rt'] {
+  background-color: #333;
+  color: #dedede;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  max-width: 340px !important;
+
+  > .tippy-svg-arrow {
+    fill: #333;
+  }
+
+  .tippy-content {
+    padding: 0;
+  }
+}

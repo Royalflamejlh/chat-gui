@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 require('webpack');
 
@@ -25,12 +26,21 @@ function bakeCookies(request) {
   request.setHeader('Cookie', cookies);
 }
 
-module.exports = {
+module.exports = (env, argv) => ({
+  output: {
+    publicPath: argv && argv.mode === 'production' ? '/chat/' : '/',
+  },
   devServer: {
     server: {
       type: 'https',
     },
     port: 8282,
+    static: [
+      {
+        directory: path.resolve(__dirname, '../../userscript'),
+        publicPath: '/userscript',
+      },
+    ],
     proxy: [
       {
         context: ['/api'],
@@ -69,6 +79,7 @@ module.exports = {
   },
   entry: {
     demo: './assets/demo.js',
+    uploader: './assets/uploader-loader.js',
   },
   watchOptions: {
     ignored: /node_modules/,
@@ -110,4 +121,4 @@ module.exports = {
   },
   context: __dirname,
   devtool: false,
-};
+});
