@@ -817,11 +817,17 @@ class Chat {
     );
     this.settings.set('highlightnicks', nicks); // clean up
 
+    // Escape when the regex is built, not when the value is stored, so any
+    // metacharacters already persisted to settings are neutralised on load.
+    const safecust = cust.map(makeSafeForRegex);
+
     this.regexhighlightself = this.user.displayName
-      ? new RegExp(`\\b(?:${this.user.displayName})\\b`, 'i')
+      ? new RegExp(`\\b(?:${makeSafeForRegex(this.user.displayName)})\\b`, 'i')
       : null;
     this.regexhighlightcustom =
-      cust.length > 0 ? new RegExp(`\\b(?:${cust.join('|')})\\b`, 'i') : null;
+      safecust.length > 0
+        ? new RegExp(`\\b(?:${safecust.join('|')})\\b`, 'i')
+        : null;
     this.regexhighlightnicks =
       nicks.length > 0 ? new RegExp(`\\b(?:${nicks.join('|')})\\b`, 'i') : null;
 
