@@ -15,6 +15,11 @@ const tagcolors = [
   'pink',
 ];
 
+// How much backlog a scrolled-up window may hold, as a multiple of maxlines.
+// Large enough that scrolling up to re-read something never truncates it,
+// small enough that an idle scrolled-up tab stays bounded.
+const UNPINNED_SLACK = 4;
+
 class ChatWindow extends EventEmitter {
   constructor(name, type = '', label = '') {
     super();
@@ -111,20 +116,38 @@ class ChatWindow extends EventEmitter {
     this.scrollplugin.update(forcePin);
   }
 
-  // Rid excess chat lines if the chat is pinned
-  // Get the scroll position before adding the new line / removing old lines
+  // Trim to `maxlines` while the view is pinned. When the user has scrolled up
+  // we still trim, but to a larger ceiling and with the scroll position
+  // compensated, so the buffer stays bounded without moving the text under the
+  // reader. `messages` is the source of truth: a pinned message's node is moved
+  // out of `.chat-lines` entirely, so the DOM child list is not a reliable index
+  // into it.
   cleanup() {
-    if (this.scrollplugin.wasPinned) {
-      const lines = [...this.lines.children];
-      if (lines.length >= this.maxlines) {
-        const remove = lines.slice(0, lines.length - this.maxlines);
-        this.linecount -= remove.length;
-        remove.forEach((element) => {
-          element.remove();
-        });
+    const pinned = this.scrollplugin.wasPinned;
+    const cap = pinned ? this.maxlines : this.maxlines * UNPINNED_SLACK;
+    const excess = this.messages.length - cap;
+    if (excess <= 0) {
+      return;
+    }
 
-        this.messages = this.messages.slice(lines.length - this.maxlines);
+    const viewport = this.lines;
+    const prevScrollHeight = viewport.scrollHeight;
+    const prevScrollTop = viewport.scrollTop;
+
+    this.messages.splice(0, excess).forEach((message) => {
+      // A pinned message lives in #chat-pinned-message now and is owned by the
+      // pin, so only drop nodes still parented to this window.
+      if (message.ui?.parentElement === viewport) {
+        message.remove();
       }
+    });
+    this.linecount -= excess;
+
+    if (!pinned) {
+      // The viewport just lost exactly the height of the lines dropped off the
+      // top; subtract it so the visible text stays where the reader left it.
+      viewport.scrollTop =
+        prevScrollTop - (prevScrollHeight - viewport.scrollHeight);
     }
   }
 
