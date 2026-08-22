@@ -5,6 +5,10 @@ import { MessageBuilder, MessageTypes } from '../messages';
 import ChatUser from '../user';
 import EventEmitter from '../emitter';
 
+// Slightly longer than the 500ms `event-bar-disappear` keyframes, so the
+// fallback only fires when the animation genuinely never ran.
+const REMOVE_FALLBACK_MS = 600;
+
 export default class EventBarEvent extends EventEmitter {
   /**
    * @param {*} chat
@@ -184,14 +188,23 @@ export default class EventBarEvent extends EventEmitter {
   remove(animate = true) {
     this.stopUpdatingExpirationProgressBar();
 
-    if (animate) {
-      this.element.addEventListener('animationend', () => {
-        this.element.remove();
-      });
-      this.element.classList.add('removed');
-    } else {
+    if (!animate) {
       this.element.remove();
+      return;
     }
+
+    // In the .onstreamchat layout #chat-event-bar is display:none, so this
+    // element has no principal box, runs no animation and never fires
+    // animationend. Without the timeout the node would stay forever.
+    let fallback = null;
+    const drop = () => {
+      clearTimeout(fallback);
+      this.element.remove();
+    };
+
+    this.element.addEventListener('animationend', drop, { once: true });
+    fallback = setTimeout(drop, REMOVE_FALLBACK_MS);
+    this.element.classList.add('removed');
   }
 
   stopUpdatingExpirationProgressBar() {
